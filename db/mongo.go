@@ -2,11 +2,16 @@ package db
 
 import mgo "gopkg.in/mgo.v2"
 
-// GetConnection
-func GetMongoConnection(source, database string) (*mgo.Session, *mgo.Database, error) {
+type MongoConnection struct {
+	*mgo.Session
+	*mgo.Database
+}
+
+//GetMongoConnection Obtiene la conexion a la BD
+func GetMongoConnection(source, database string) (MongoConnection, error) {
 	var session, err = mgo.Dial(source)
 	if err != nil {
-		return session, nil, err
+		return MongoConnection{session, nil}, err
 	}
-	return session, session.DB(database), nil
+	return MongoConnection{session, session.DB(database)}, nil
 }

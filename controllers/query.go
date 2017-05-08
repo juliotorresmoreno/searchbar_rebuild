@@ -44,6 +44,7 @@ func GetQuery(w http.ResponseWriter, r *http.Request) {
 		el := responseQueryItem{
 			Id:        member,
 			Score:     _result[i].Score,
+			Store:     _result[i].Id,
 			Datatable: row,
 		}
 		response.Data = append(response.Data, el)
@@ -67,6 +68,7 @@ type responseQuery struct {
 type responseQueryItem struct {
 	Id    string  `json:"id"`
 	Score float64 `json:"score"`
+	Store string  `json:"store"`
 	models.Datatable
 }
 

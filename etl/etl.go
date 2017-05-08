@@ -47,8 +47,8 @@ func (etl *Etl) Close() {
 
 //ImportData Encargado de hacer la importacion propiamente
 func (etl *Etl) ImportData(source, database, collection string) error {
-	session, db, err := db.GetMongoConnection(source, database)
-	defer session.Close()
+	db, err := db.GetMongoConnection(source, database)
+	defer db.Close()
 	if err != nil {
 		return err
 	}
