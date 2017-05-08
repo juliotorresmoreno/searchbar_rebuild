@@ -86,8 +86,8 @@ func (etl *Etl) addTerm(id string, row *models.Datatable) {
 	etl.addWord(id, row.PoolSpa)
 	etl.addWord(id, row.Roof)
 	etl.addWord(id, row.Sewer)
-	etl.addWord(id, row.StructureFeatures)
 	etl.addWord(id, row.Water)
+	etl.addWord(id, row.StructureFeatures)
 }
 
 func (etl *Etl) addWord(id, term string) {
