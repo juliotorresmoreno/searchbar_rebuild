@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	redis "gopkg.in/redis.v5"
+
+	"strings"
+
 	"github.com/juliotorresmoreno/searchbar/db"
 	"github.com/juliotorresmoreno/searchbar/models"
 )
@@ -12,7 +16,14 @@ import (
 func GetDescribe(w http.ResponseWriter, r *http.Request) {
 	var data []byte
 	id := r.URL.Query().Get("id")
+	stores := strings.Split(r.URL.Query().Get("stores"), ",")
 	cache := db.GetCache()
+	defer cache.Close()
+	for _, v := range stores {
+		if v != "" {
+			incrementScore(cache, id, v)
+		}
+	}
 	result := cache.Get(id)
 	row := models.Datatable{}
 	val := result.Val()
@@ -29,6 +40,19 @@ func GetDescribe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
+}
+
+func incrementScore(cache *db.Cache, id, store string) {
+	data := cache.ZRangeWithScores(store, 0, -1)
+	words, _ := data.Result()
+	for _, t := range words {
+		if t.Member == id {
+			cache.ZAdd(store, redis.Z{
+				Score:  t.Score + 1,
+				Member: id,
+			})
+		}
+	}
 }
 
 type responseDescribe struct {

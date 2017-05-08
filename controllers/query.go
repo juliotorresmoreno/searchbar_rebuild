@@ -17,11 +17,19 @@ func GetQuery(w http.ResponseWriter, r *http.Request) {
 	cache := db.GetCache()
 	keys := cache.FindKeys(query)
 	_result := make([]z, 0)
+	stores := map[string][]string{}
+	proccess := map[string]bool{}
+	scores := map[string]float64{}
 	for _, v := range keys {
 		data := cache.ZRangeWithScores(v, 0, 10)
 		result, _ := data.Result()
 		for i := range result {
+			member := result[i].Member.(string)
 			tmp := z{Id: v, Z: result[i]}
+			stores[member] = append(stores[member], v)
+			if v, ok := scores[member]; !ok || v < tmp.Score {
+				scores[member] = tmp.Score
+			}
 			_result = append(_result, tmp)
 		}
 	}
@@ -38,16 +46,18 @@ func GetQuery(w http.ResponseWriter, r *http.Request) {
 	response := newResponseQuery()
 	for i := 0; i < 5 && i < length; i++ {
 		member := _result[i].Member.(string)
-		tmp := cache.Get(member)
-		row := models.Datatable{}
-		json.Unmarshal([]byte(tmp.Val()), &row)
-		el := responseQueryItem{
-			Id:        member,
-			Score:     _result[i].Score,
-			Store:     _result[i].Id,
-			Datatable: row,
+		if _, ok := proccess[member]; !ok {
+			tmp := cache.Get(member)
+			row := models.Datatable{}
+			json.Unmarshal([]byte(tmp.Val()), &row)
+			el := newResponseQueryItem()
+			el.Id = member
+			el.Score = scores[member]
+			el.Stores = stores[member]
+			el.Datatable = row
+			response.Data = append(response.Data, el)
+			proccess[member] = true
 		}
-		response.Data = append(response.Data, el)
 	}
 	data, _ := json.Marshal(response)
 	w.Header().Set("Content-Type", "application/json")
@@ -66,9 +76,9 @@ type responseQuery struct {
 }
 
 type responseQueryItem struct {
-	Id    string  `json:"id"`
-	Score float64 `json:"score"`
-	Store string  `json:"store"`
+	Id     string   `json:"id"`
+	Score  float64  `json:"score"`
+	Stores []string `json:"stores"`
 	models.Datatable
 }
 
@@ -76,5 +86,10 @@ func newResponseQuery() responseQuery {
 	return responseQuery{
 		Success: true,
 		Data:    make([]responseQueryItem, 0),
+	}
+}
+func newResponseQueryItem() responseQueryItem {
+	return responseQueryItem{
+		Stores: make([]string, 0),
 	}
 }
