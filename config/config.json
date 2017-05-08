@@ -1,0 +1,14 @@
+{
+    "port": "8080",
+    "ReadTimeout": 10,
+    "redisHost": "127.0.0.1",
+    "redisPort": "6379",
+    "sourceData": "info",
+    "sources": [
+        {
+            "host": "127.0.0.1:27017",
+            "database": "mls",
+            "collection": "info"
+        }
+    ]
+}
