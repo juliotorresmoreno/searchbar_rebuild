@@ -2,6 +2,6 @@ package main
 
 import "github.com/juliotorresmoreno/searchbar/bootstrap"
 
-func main()  {
+func main() {
 	bootstrap.StartHTTP()
 }

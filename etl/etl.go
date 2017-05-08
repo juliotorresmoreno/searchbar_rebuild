@@ -1,6 +1,9 @@
 package etl
 
 import (
+	"crypto/md5"
+	"fmt"
+	"io"
 	"strings"
 
 	"encoding/json"
@@ -67,7 +70,9 @@ func (etl *Etl) ImportData(source, database, collection string) error {
 func key(source, database, collection, id string) string {
 	source = strings.Replace(source, ":", "_", 1)
 	source = strings.Replace(source, ".", "_", 3)
-	return source + "_" + database + "_" + collection + "_" + id
+	h := md5.New()
+	io.WriteString(h, source+"_"+database+"_"+collection+"_"+id)
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
 //addTerm Agrega un indice de palabras en la base de datos
@@ -99,7 +104,7 @@ func (etl *Etl) addWord(id, term string) {
 			}
 			etl.cache.ZAdd(key, redis.Z{
 				Score:  0,
-				Member: "kjhjgjh",
+				Member: id,
 			})
 		}
 	}

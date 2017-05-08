@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 
 	"github.com/juliotorresmoreno/searchbar/db"
+	"github.com/juliotorresmoreno/searchbar/models"
 )
 
 //GetQuery Metodo Get encargado de consultar los datos
@@ -15,12 +16,13 @@ func GetQuery(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("query")
 	cache := db.GetCache()
 	keys := cache.FindKeys(query)
-	_result := make([]redis.Z, 0)
+	_result := make([]z, 0)
 	for _, v := range keys {
 		data := cache.ZRangeWithScores(v, 0, 10)
 		result, _ := data.Result()
 		for i := range result {
-			_result = append(_result, result[i])
+			tmp := z{Id: v, Z: result[i]}
+			_result = append(_result, tmp)
 		}
 	}
 	length := len(_result)
@@ -33,15 +35,44 @@ func GetQuery(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	response := make([]map[string]string, 0)
+	response := newResponseQuery()
 	for i := 0; i < 5 && i < length; i++ {
 		member := _result[i].Member.(string)
-		tmp := cache.Get(member).Val()
-		row := map[string]string{}
-		json.Unmarshal([]byte(tmp), &row)
-		response = append(response, row)
-		println(member, tmp, cache.Get(member).Err().Error())
+		tmp := cache.Get(member)
+		row := models.Datatable{}
+		json.Unmarshal([]byte(tmp.Val()), &row)
+		el := responseQueryItem{
+			Id:        member,
+			Score:     _result[i].Score,
+			Datatable: row,
+		}
+		response.Data = append(response.Data, el)
 	}
-	data, _ := json.Marshal(keys)
+	data, _ := json.Marshal(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(data)
+}
+
+type z struct {
+	Id string
+	redis.Z
+}
+
+type responseQuery struct {
+	Success bool
+	Data    []responseQueryItem
+}
+
+type responseQueryItem struct {
+	Id    string  `json:"id"`
+	Score float64 `json:"score"`
+	models.Datatable
+}
+
+func newResponseQuery() responseQuery {
+	return responseQuery{
+		Success: true,
+		Data:    make([]responseQueryItem, 0),
+	}
 }

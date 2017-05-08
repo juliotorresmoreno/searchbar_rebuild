@@ -1,0 +1,10 @@
+{
+  "name": "searchbar",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "go run main.go"
+  },
+  "author": "",
+  "license": "ISC"
+}
