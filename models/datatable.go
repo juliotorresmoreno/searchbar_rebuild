@@ -17,4 +17,5 @@ type Datatable struct {
 	Water             string        `bson:"Water" json:"water"`
 	AirConditioning   string        `bson:"AirConditioning" json:"air_conditioning"`
 	PoolSpa           string        `bson:"PoolSpa" json:"pool_spa"`
+	Location          []int         `bson:"Location" json:"location"`
 }

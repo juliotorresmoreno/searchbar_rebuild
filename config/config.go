@@ -9,11 +9,20 @@ import (
 //PORT puerto de escucha del servidor http
 var PORT string
 
-//REDIS_HOST servidor de base de datos redis
+//REDIS_HOST servidor de base de datos mongo
 var REDIS_HOST string
 
-//REDIS_PORT Puerto de la base de datos redis
+//REDIS_PORT Puerto de la base de datos mongo
 var REDIS_PORT string
+
+//MONGO_HOST servidor de base de datos mongo
+var MONGO_HOST string
+
+//MONGO_PORT Puerto de la base de datos mongo
+var MONGO_PORT string
+
+//MONGO_DB Nombre de la base de datos mongo
+var MONGO_DB string
 
 //SOURCES Listado de origenes de datos
 var SOURCES []source

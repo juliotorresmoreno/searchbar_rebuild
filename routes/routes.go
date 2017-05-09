@@ -14,6 +14,7 @@ func GetRoutes() *mux.Router {
 	mux.HandleFunc("/import", controllers.GetEtl).Methods("GET")
 	mux.HandleFunc("/query", controllers.GetQuery).Methods("GET")
 	mux.HandleFunc("/describe", controllers.GetDescribe).Methods("GET")
+	mux.HandleFunc("/graphql", controllers.GetGraphQL).Methods("GET")
 	mux.PathPrefix("/").HandlerFunc(controllers.GetIndex).Methods("GET")
 	withoutGz := http.Handler(mux)
 	withGz := gziphandler.GzipHandler(withoutGz)

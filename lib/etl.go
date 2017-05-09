@@ -1,4 +1,4 @@
-package etl
+package lib
 
 import (
 	"crypto/md5"
@@ -53,17 +53,29 @@ func (etl *Etl) ImportData(source, database, collection string) error {
 		return err
 	}
 	data := make([]models.Datatable, 0)
+	num, _ := db.C(collection).Find(bson.M{}).Count()
 	err = db.C(collection).Find(bson.M{}).All(&data)
 	if err != nil {
 		return err
 	}
 	zero := 0 * time.Second
+	inc := 100 / float64(num)
+	cnt := float64(1)
+	fmt.Println("Import data")
+	imp := float64(0)
 	for _, v := range data {
 		id := key(source, database, collection, v.ID.Hex())
 		data, _ := json.Marshal(v)
 		etl.cache.Set(id, string(data), zero)
 		etl.addTerm(id, &v)
+		progress := cnt * inc
+		if progress >= imp {
+			fmt.Printf("Progress: %v%v\n", cnt*inc, "%")
+			imp = imp + 10
+		}
+		cnt = cnt + 1
 	}
+	fmt.Println("Complete")
 	return nil
 }
 
@@ -91,10 +103,10 @@ func (etl *Etl) addTerm(id string, row *models.Datatable) {
 }
 
 func (etl *Etl) addWord(id, term string) {
-	_term := strings.Split(term, " ")
+	_term := strings.Split(term, ",")
 	for _, v := range _term {
 		if v != "" {
-			key := "word_" + v
+			key := "word_" + strings.ToLower(v)
 			data := etl.cache.ZRange(key, 0, -1)
 			words, _ := data.Result()
 			for _, t := range words {

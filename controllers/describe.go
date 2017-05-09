@@ -56,8 +56,8 @@ func incrementScore(cache *db.Cache, id, store string) {
 }
 
 type responseDescribe struct {
-	Success bool
-	Data    models.Datatable
+	Success bool             `json:"success"`
+	Data    models.Datatable `json:"data"`
 }
 
 func newResponseDescribe() responseDescribe {
