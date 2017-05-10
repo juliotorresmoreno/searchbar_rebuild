@@ -5,10 +5,33 @@ import (
 
 	"strings"
 
+	"fmt"
+
 	"github.com/juliotorresmoreno/searchbar/db"
 	"github.com/juliotorresmoreno/searchbar/models"
 	redis "gopkg.in/redis.v5"
 )
+
+//DescribeElement describe el elemento
+func DescribeElement(id, stores string) (models.Datatable, error) {
+	_stores := strings.Split(stores, ",")
+	cache := db.GetCache()
+	defer cache.Close()
+	println(id, stores)
+	for _, v := range _stores {
+		if v != "" {
+			incrementScore(cache, id, v)
+		}
+	}
+	result := cache.Get(id)
+	row := models.Datatable{}
+	val := result.Val()
+	if val != "" {
+		json.Unmarshal([]byte(val), &row)
+		return row, nil
+	}
+	return row, fmt.Errorf("Not found")
+}
 
 //LocationQuery Metodo Get encargado de consultar los datos
 func LocationQuery(query string) ResponseLocation {
@@ -88,5 +111,18 @@ func newResponseLocation() ResponseLocation {
 func newResponseLocationItem() ResponseLocationItem {
 	return ResponseLocationItem{
 		Stores: make([]string, 0),
+	}
+}
+
+func incrementScore(cache *db.Cache, id, store string) {
+	data := cache.ZRangeWithScores(store, 0, -1)
+	words, _ := data.Result()
+	for _, t := range words {
+		if t.Member == id {
+			cache.ZAdd(store, redis.Z{
+				Score:  t.Score + 1,
+				Member: id,
+			})
+		}
 	}
 }

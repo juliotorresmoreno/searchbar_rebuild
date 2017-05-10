@@ -6,7 +6,6 @@ import (
 	"github.com/graphql-go/graphql"
 	"github.com/juliotorresmoreno/searchbar/api"
 	"github.com/juliotorresmoreno/searchbar/db"
-	"github.com/juliotorresmoreno/searchbar/models"
 )
 
 var cache = db.GetCache()
@@ -130,15 +129,25 @@ var SetData = graphql.Fields{
 		}),
 		Args: graphql.FieldConfigArgument{},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-			result := map[string]string{"message": "success"}
+			result := success{Message: "success"}
 			return result, nil
 		},
 	},
 	"describeElement": &graphql.Field{
 		Type: locationType,
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"stores": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+		},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
-			data := models.Datatable{}
-			return data, nil
+			id := params.Args["id"].(string)
+			stores := params.Args["stores"].(string)
+			data, err := api.DescribeElement(id, stores)
+			return data, err
 		},
 	},
 }
