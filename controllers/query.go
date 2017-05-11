@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/juliotorresmoreno/searchbar/api"
-
 	"encoding/json"
+
+	"github.com/juliotorresmoreno/searchbar/api"
 )
 
 //GetQuery Metodo Get encargado de consultar los datos

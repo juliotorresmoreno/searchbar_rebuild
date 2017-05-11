@@ -5,7 +5,10 @@ import (
 
 	"github.com/graphql-go/graphql"
 	"github.com/juliotorresmoreno/searchbar/api"
+	"github.com/juliotorresmoreno/searchbar/config"
 	"github.com/juliotorresmoreno/searchbar/db"
+	"github.com/juliotorresmoreno/searchbar/etl"
+	"github.com/juliotorresmoreno/searchbar/models"
 )
 
 var cache = db.GetCache()
@@ -129,6 +132,12 @@ var SetData = graphql.Fields{
 		}),
 		Args: graphql.FieldConfigArgument{},
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+			tool := etl.NewEtl()
+			tool.Open()
+			defer tool.Close()
+			for _, v := range config.SOURCES {
+				tool.ImportData(v.Host, v.Database, v.Collection)
+			}
 			result := success{Message: "success"}
 			return result, nil
 		},
@@ -146,8 +155,8 @@ var SetData = graphql.Fields{
 		Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 			id := params.Args["id"].(string)
 			stores := params.Args["stores"].(string)
-			data, err := api.DescribeElement(id, stores)
-			return data, err
+			api.DescribeElement(id, stores)
+			return models.Datatable{}, nil
 		},
 	},
 }

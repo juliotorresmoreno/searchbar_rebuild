@@ -5,8 +5,6 @@ import (
 
 	"strings"
 
-	"fmt"
-
 	"github.com/juliotorresmoreno/searchbar/db"
 	"github.com/juliotorresmoreno/searchbar/models"
 	redis "gopkg.in/redis.v5"
@@ -14,10 +12,16 @@ import (
 
 //DescribeElement describe el elemento
 func DescribeElement(id, stores string) (models.Datatable, error) {
+	return models.Datatable{}, nil
+}
+
+/*
+//DescribeElement describe el elemento
+func DescribeElement(id, stores string) (models.Datatable, error) {
+	return models.Datatable{}, nil
 	_stores := strings.Split(stores, ",")
 	cache := db.GetCache()
 	defer cache.Close()
-	println(id, stores)
 	for _, v := range _stores {
 		if v != "" {
 			incrementScore(cache, id, v)
@@ -26,12 +30,14 @@ func DescribeElement(id, stores string) (models.Datatable, error) {
 	result := cache.Get(id)
 	row := models.Datatable{}
 	val := result.Val()
+	return row, nil
 	if val != "" {
 		json.Unmarshal([]byte(val), &row)
 		return row, nil
 	}
 	return row, fmt.Errorf("Not found")
 }
+*/
 
 //LocationQuery Metodo Get encargado de consultar los datos
 func LocationQuery(query string) ResponseLocation {

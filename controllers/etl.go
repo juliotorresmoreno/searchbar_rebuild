@@ -8,12 +8,12 @@ import (
 	"fmt"
 
 	"github.com/juliotorresmoreno/searchbar/config"
-	"github.com/juliotorresmoreno/searchbar/lib"
+	"github.com/juliotorresmoreno/searchbar/etl"
 )
 
 //GetEtl Metodo Get encargado de importar los datos
 func GetEtl(w http.ResponseWriter, r *http.Request) {
-	tool := lib.NewEtl()
+	tool := etl.NewEtl()
 	tool.Open()
 	defer tool.Close()
 	errs := make([]string, 0)

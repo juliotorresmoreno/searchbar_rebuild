@@ -1,4 +1,4 @@
-package lib
+package etl
 
 import (
 	"crypto/md5"

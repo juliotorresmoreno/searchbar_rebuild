@@ -16,7 +16,9 @@ func ExecuteQuery(query string) *graphql.Result {
 		RequestString: query,
 	})
 	if len(result.Errors) > 0 {
-		fmt.Printf("wrong result, unexpected errors: %v", result.Errors)
+		location := result.Errors[0].Locations
+		message := result.Errors[0].Message
+		fmt.Printf("wrong result, unexpected errors: %v, %v", location, message)
 	}
 	return result
 }
